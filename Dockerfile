@@ -1,4 +1,5 @@
 ARG PG_VERSION
+ARG ARCH
 ############################
 # Build tools binaries in separate image
 ############################
@@ -7,6 +8,7 @@ FROM golang:alpine AS tools
 ENV TOOLS_VERSION 0.4.1
 
 RUN apk update && apk add --no-cache git \
+    && apk add build-base gcc abuild binutils binutils-doc gcc-doc \
     && mkdir -p ${GOPATH}/src/github.com/timescale/ \
     && cd ${GOPATH}/src/github.com/timescale/ \
     && git clone https://github.com/timescale/timescaledb-tune.git \
