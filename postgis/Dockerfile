@@ -1,7 +1,8 @@
 ARG PG_VERSION_TAG
-FROM timescale/timescaledb:1.2.2-${PG_VERSION_TAG}
+ARG ARCH
+FROM foraone/timescaledb:1.2.2-${PG_VERSION_TAG}-${ARCH}
 
-MAINTAINER Timescale https://www.timescale.com
+MAINTAINER Sergii Savchenko https://fora.one
 ARG POSTGIS_VERSION
 ENV POSTGIS_VERSION ${POSTGIS_VERSION:-2.5.0}
 

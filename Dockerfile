@@ -29,8 +29,8 @@ RUN apk update && apk add --no-cache git \
 ############################
 ARG PG_VERSION
 FROM postgres:${PG_VERSION}-alpine AS oldversions
-ARG PG_VERSION
 ARG OSS_ONLY
+
 RUN set -ex \
     && apk add --no-cache --virtual .fetch-deps \
                 ca-certificates \
@@ -55,7 +55,7 @@ RUN set -ex \
     # on PG11, we can remove the 'if' guard
     && echo "if [ \"$(echo ${PG_VERSION} | cut -c1-2)\" != \"11\" ] || [ "\${OLD_VERSION}" \> "1.0.1" ]; then cd /build/timescaledb && rm -fr build && git reset HEAD --hard && git fetch && git checkout \${OLD_VERSION} && ./bootstrap -DPROJECT_INSTALL_METHOD=\"docker\"${OSS_ONLY} && cd build && make install; fi" > ./build_old.sh \
     && chmod +x ./build_old.sh
-
+    
 #####
 # Add the latest previous version to the end of the list for each new build
 #####
@@ -86,7 +86,8 @@ RUN \
     # Clean up the rest of the image
     && cd ~ \
     && apk del .fetch-deps .build-deps \
-    && rm -rf /build \
+    && rm -rf /build
+
 
 ############################
 # Now build image and copy in tools

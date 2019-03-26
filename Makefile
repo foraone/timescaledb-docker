@@ -17,17 +17,23 @@ endif
 default: image
 
 .build_$(VERSION)_$(PG_VER)_oss: Dockerfile
-	docker build --build-arg OSS_ONLY=" -DAPACHE_ONLY=1" --build-arg PG_VERSION=$(PG_VER_NUMBER) -t $(ORG)/$(NAME):latest-$(PG_VER)-$(BUILD_ARCH)-oss .
+	echo 'docker build --build-arg OSS_ONLY=" -DAPACHE_ONLY=1" --build-arg PG_VERSION=$(PG_VER_NUMBER) --build-arg ARCH=$(BUILD_ARCH) -t $(ORG)/$(NAME):latest-$(PG_VER)-$(BUILD_ARCH)-oss .'
+	docker build --build-arg OSS_ONLY=" -DAPACHE_ONLY=1" --build-arg PG_VERSION=$(PG_VER_NUMBER) --build-arg ARCH=$(BUILD_ARCH) -t $(ORG)/$(NAME):latest-$(PG_VER)-$(BUILD_ARCH)-oss .
 	docker tag $(ORG)/$(NAME):latest-$(PG_VER)-$(BUILD_ARCH)-oss $(ORG)/$(NAME):$(VERSION)-$(PG_VER)-$(BUILD_ARCH)-oss
 	touch .build_$(VERSION)_$(PG_VER)_$(BUILD_ARCH)_oss
+	docker build --build-arg POSTGIS_VERSION=2.5.1 --build-arg PG_VERSION_TAG=$(PG_VER) -t $(ORG)/$(NAME):latest-$(PG_VER)-$(BUILD_ARCH)-gis-oss ./postgis/
+	docker tag $(ORG)/$(NAME):latest-$(PG_VER)-$(BUILD_ARCH)-gis-oss $(ORG)/$(NAME):$(VERSION)-$(BUILD_ARCH)-gis-oss 
+	touch .build_postgis_$(VERSION)_$(PG_VER)_$(BUILD_ARCH)_oss
 
 .build_$(VERSION)_$(PG_VER): Dockerfile
+	echo "BUILDING: PG_VERSION=$(PG_VER_NUMBER)"
+	echo "docker build --build-arg PG_VERSION=$(PG_VER_NUMBER) -t $(ORG)/$(NAME):latest-$(PG_VER)-$(BUILD_ARCH) ."
 	docker build --build-arg PG_VERSION=$(PG_VER_NUMBER) -t $(ORG)/$(NAME):latest-$(PG_VER)-$(BUILD_ARCH) .
-ifeq ($(PG_VER),pg9.6)
-	docker tag $(ORG)/$(NAME):latest-$(PG_VER)-$(BUILD_ARCH) $(ORG)/$(NAME):latest-$(BUILD_ARCH)
-endif
 	docker tag $(ORG)/$(NAME):latest-$(PG_VER)-$(BUILD_ARCH) $(ORG)/$(NAME):$(VERSION)-$(PG_VER)-$(BUILD_ARCH)
 	touch .build_$(VERSION)_$(PG_VER)_$(BUILD_ARCH)
+	docker build --build-arg ARCH=$(BUILD_ARCH) --build-arg POSTGIS_VERSION=2.5.1 --build-arg PG_VERSION_TAG=$(PG_VER) -t $(ORG)/$(NAME):latest-$(PG_VER)-$(BUILD_ARCH)-gis ./postgis/
+	docker tag $(ORG)/$(NAME):latest-$(PG_VER)-$(BUILD_ARCH)-gis $(ORG)/$(NAME):$(VERSION)-$(BUILD_ARCH)-gis 
+	touch .build_postgis_$(VERSION)_$(PG_VER)_$(BUILD_ARCH)
 
 image: .build_$(VERSION)_$(PG_VER)
 
@@ -36,9 +42,8 @@ oss: .build_$(VERSION)_$(PG_VER)_oss
 push: image
 	docker push $(ORG)/$(NAME):$(VERSION)-$(PG_VER)-$(BUILD_ARCH)
 	docker push $(ORG)/$(NAME):latest-$(PG_VER)-$(BUILD_ARCH)
-ifeq ($(PG_VER),pg9.6)
-	docker push $(ORG)/$(NAME):latest-$(BUILD_ARCH)
-endif
+	docker push $(ORG)/$(NAME):$(VERSION)-$(BUILD_ARCH)-gis
+	docker push $(ORG)/$(NAME):latest-$(PG_VER)-$(BUILD_ARCH)-gis
 
 push-oss: oss
 	docker push $(ORG)/$(NAME):$(VERSION)-$(PG_VER)-$(BUILD_ARCH)-oss
@@ -47,4 +52,12 @@ push-oss: oss
 clean:
 	rm -f *~ .build_*
 
-.PHONY: default image push push-oss oss clean
+manifest: image
+	docker pull $(ORG)/$(NAME):$(VERSION)-amd64-gis
+	docker pull $(ORG)/$(NAME):$(VERSION)-arm64v8-gis
+	docker manifest create --amend $(ORG)/$(NAME):$(VERSION) $(ORG)/$(NAME):$(VERSION)-amd64-gis $(ORG)/$(NAME):$(VERSION)-arm64v8-gis
+	docker manifest create --amend $(ORG)/$(NAME):latest $(ORG)/$(NAME):$(VERSION)-amd64-gis $(ORG)/$(NAME):$(VERSION)-arm64v8-gis
+	docker manifest push $(ORG)/$(NAME):$(VERSION)
+	docker manifest push $(ORG)/$(NAME):latest
+
+.PHONY: default image push clean
