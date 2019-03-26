@@ -26,6 +26,9 @@ RUN set -ex \
         postgresql-dev \
         perl \
         file \
+        python \
+        python-dev \
+        py-pip \
         libxml2-dev \
         proj4-dev \
         protobuf-c-dev \
