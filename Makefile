@@ -26,11 +26,11 @@ default: image
 	touch .build_postgis_$(VERSION)_$(PG_VER)_$(BUILD_ARCH)_oss
 
 .build_$(VERSION)_$(PG_VER): Dockerfile
-	echo "BUILDING: PG_VERSION=$(PG_VER_NUMBER)"
-	echo "docker build --build-arg PG_VERSION=$(PG_VER_NUMBER) -t $(ORG)/$(NAME):latest-$(PG_VER)-$(BUILD_ARCH) ."
-	docker build --build-arg PG_VERSION=$(PG_VER_NUMBER) -t $(ORG)/$(NAME):latest-$(PG_VER)-$(BUILD_ARCH) .
-	docker tag $(ORG)/$(NAME):latest-$(PG_VER)-$(BUILD_ARCH) $(ORG)/$(NAME):$(VERSION)-$(PG_VER)-$(BUILD_ARCH)
-	touch .build_$(VERSION)_$(PG_VER)_$(BUILD_ARCH)
+	# echo "BUILDING: PG_VERSION=$(PG_VER_NUMBER)"
+	# echo "docker build --build-arg PG_VERSION=$(PG_VER_NUMBER) -t $(ORG)/$(NAME):latest-$(PG_VER)-$(BUILD_ARCH) ."
+	# docker build --build-arg PG_VERSION=$(PG_VER_NUMBER) -t $(ORG)/$(NAME):latest-$(PG_VER)-$(BUILD_ARCH) .
+	# docker tag $(ORG)/$(NAME):latest-$(PG_VER)-$(BUILD_ARCH) $(ORG)/$(NAME):$(VERSION)-$(PG_VER)-$(BUILD_ARCH)
+	# touch .build_$(VERSION)_$(PG_VER)_$(BUILD_ARCH)
 	docker build --build-arg ARCH=$(BUILD_ARCH) --build-arg POSTGIS_VERSION=2.5.1 --build-arg PG_VERSION_TAG=$(PG_VER) -t $(ORG)/$(NAME):latest-$(PG_VER)-$(BUILD_ARCH)-gis ./postgis/
 	docker tag $(ORG)/$(NAME):latest-$(PG_VER)-$(BUILD_ARCH)-gis $(ORG)/$(NAME):$(VERSION)-$(BUILD_ARCH)-gis 
 	touch .build_postgis_$(VERSION)_$(PG_VER)_$(BUILD_ARCH)
