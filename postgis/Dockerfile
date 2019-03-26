@@ -96,5 +96,7 @@ RUN set -ex \
     && apk add --no-cache --virtual .postgis-rundeps \
         json-c \
     && cd / \
-    && rm -rf /tmp/postgis-${POSTGIS_VERSION} \
-    && apk del .fetch-deps .build-deps
+    && apk del .fetch-deps .build-deps \
+    && rm -rf /tmp
+
+
