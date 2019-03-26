@@ -81,7 +81,7 @@ RUN set -ex \
     && cd geos* \
     && ./configure --enable-python \
     && make -j 8 \
-    && sudo make install \
+    && make install \
     && cd .. \
     #------------ posrgis
     && cd /tmp \
