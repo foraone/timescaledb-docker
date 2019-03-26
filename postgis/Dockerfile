@@ -3,7 +3,7 @@ ARG ARCH
 FROM foraone/timescaledb:1.2.2-${PG_VERSION_TAG}-${ARCH}
 MAINTAINER Sergii Savchenko https://fora.one
 
-ARG GDAL_VERSION=v2.4.1
+ARG GDAL_VERSION=v2.4.0
 ARG LIBKML_VERSION=1.3.0
 ARG GEOS_VERSION=3.7.1
 ARG POSTGIS_VERSION
@@ -71,7 +71,7 @@ RUN set -ex \
     && make install \
     # gdal python bindings
     && pip install gdal --no-cache-dir \
-    && cd /temp \
+    && cd /tmp \
     && rm -rf build \
     #rm -rf /var/cache/apk/* && \
     #rm -rf /usr/lib/python2.7 \
